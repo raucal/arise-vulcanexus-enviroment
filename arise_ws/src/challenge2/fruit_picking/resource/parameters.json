@@ -1,0 +1,8 @@
+{
+    "uri": "mongodb://u_sid_arise:hU6lIP.haEL@duero.cartif.local:27017/?authSource=sid_arise&readPreference=primary&authMechanism=DEFAULT&directConnection=true&ssl=false",
+    "database_name": "sid_arise",
+    "collection_name": "vulcanexus_enviroment",
+    "object_id": "66448ba1c1eba8313a5dcc81"
+}
+  
+

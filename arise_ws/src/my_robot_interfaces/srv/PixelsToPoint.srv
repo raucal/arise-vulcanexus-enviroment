@@ -1,0 +1,9 @@
+# Las plantillas de mensajes y servicios:
+    # Solo pueden contener letras minúsculas, números y guiones bajos (_).
+    # No pueden terminar en un guion bajo.
+    # No pueden contener dos guiones bajos consecutivos.
+
+int32[2] pixels
+---
+float32[3] point
+bool success

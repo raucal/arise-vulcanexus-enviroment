@@ -1,0 +1,6 @@
+# Ignorar archivos log, install y build dentro de la carpeta arise_ws
+arise_ws/log/
+arise_ws/install/
+arise_ws/build/
+
+

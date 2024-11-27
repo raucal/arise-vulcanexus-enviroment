@@ -1,0 +1,4 @@
+# CheckGeometry.srv
+geometry_msgs/Vector3 position
+---
+bool result

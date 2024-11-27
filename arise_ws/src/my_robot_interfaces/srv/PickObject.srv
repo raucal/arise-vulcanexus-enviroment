@@ -1,0 +1,4 @@
+geometry_msgs/Vector3 point
+float32 angle
+---
+bool success

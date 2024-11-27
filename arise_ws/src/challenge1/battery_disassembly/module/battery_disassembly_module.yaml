@@ -1,0 +1,2 @@
+fruit_picking:
+  launch: "battery_disassembly battery_disassembly.launch.py"
