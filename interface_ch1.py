@@ -3,6 +3,9 @@
 import customtkinter as ctk
 import subprocess
 import time
+import requests
+from requests.auth import HTTPBasicAuth
+
 import os
 user = os.getenv('USER')
 
@@ -13,7 +16,12 @@ ctk.set_default_color_theme("blue")  # Opciones: "blue", "dark-blue", "green"
 # Crear la ventana principal
 root = ctk.CTk()
 root.title("Interfaz de control CH1 - ARISE")
-root.geometry("500x650")  # Ajustar el tamaño de la ventana para acomodar el nuevo botón
+root.geometry("650x850")  # Ajustar el tamaño de la ventana para acomodar botones más grandes
+
+# Configuración del HoloLens
+hololens_ip = "192.168.101.91"
+username = "Cervera5R"         # Usuario del portal de dispositivos
+password = "Cervera5R47151"    # Contraseña del portal de dispositivos
 
 # Diccionario para guardar procesos iniciados
 procesos = {}
@@ -108,7 +116,7 @@ def ejecutar_todos_los_comandos():
     ejecutar_comando4()
     ejecutar_comando5()
     ejecutar_comando6()
-    ejecutar_comando7()
+    # ejecutar_comando7()
     btn_ejecutar_todos.configure(state="disabled", fg_color="gray")
 
 def matar_todos_los_procesos():
@@ -120,71 +128,123 @@ def matar_todos_los_procesos():
     if btn_comando4._state=="disabled": detener_comando4()
     if btn_comando5._state=="disabled": detener_comando5()
     if btn_comando6._state=="disabled": detener_comando6()
-    if btn_comando7._state=="disabled": detener_comando7()
+    # if btn_comando7._state=="disabled": detener_comando7()
     procesos.clear()
     time.sleep(10)
     subprocess.Popen(["killall", "gnome-terminal-"])
     root.quit()
 
-def abrir_enlace():
-    url = "http://Cervera5R:Cervera5R47151@192.168.101.91/#Apps"
-    subprocess.Popen(['firefox', url])
+# def abrir_enlace():
+#     url = "http://Cervera5R:Cervera5R47151@192.168.101.91/#Apps"
+#     subprocess.Popen(['firefox', url])
+
+def lanzar_app():
+    ejecutar_comando7()
+
+    # URL de la solicitud
+    url = f"http://{hololens_ip}/api/taskmanager/app"
+    params = {
+        "appid": "QVJJU0VfcHpxM3hwNzZteGFmZyFBcHA%3D"  # appid codificado
+    }
+
+    # Realizar la solicitud POST
+    try:
+        response = requests.post(url, params=params, auth=HTTPBasicAuth(username, password))
+
+        # Verificar la respuesta
+        if response.status_code == 200:
+            print("La aplicación se lanzó correctamente.")
+            btn_lanzar_app.configure(state="disabled", fg_color="gray")
+            btn_detener_app.configure(state="normal", fg_color="red")
+        else:
+            print(f"Error al lanzar la aplicación: {response.status_code}")
+            print(response.text)
+    except requests.exceptions.RequestException as e:
+        print(f"Error al conectar con el HoloLens: {e}")
+
+def detener_app():
+    # URL para detener la aplicación
+    url = f"http://{hololens_ip}/api/taskmanager/app"
+    # Parámetro del paquete codificado
+    params = {
+        "package": "QVJJU0VfMS4wLjAuMF9hcm02NF9fcHpxM3hwNzZteGFmZw=="  # Package codificado en Base64
+    }
+
+    # Realizar la solicitud DELETE
+    try:
+        response = requests.delete(url, params=params, auth=HTTPBasicAuth(username, password))
+
+        # Verificar la respuesta
+        if response.status_code == 200:
+            print("La aplicación se detuvo correctamente.")
+            btn_detener_app.configure(state="disabled", fg_color="gray")
+            btn_lanzar_app.configure(state="normal", fg_color="blue")
+        else:
+            print(f"Error al detener la aplicación: {response.status_code}")
+            print(response.text)
+    except requests.exceptions.RequestException as e:
+        print(f"Error al conectar con el HoloLens: {e}")
 
 # Crear botones para cada comando y su botón "Detener" correspondiente
 # Inicialmente, los botones "Detener" están deshabilitados y en color gris
-btn_comando1 = ctk.CTkButton(root, text="Detección de tornillos", command=ejecutar_comando1, fg_color="green")
-btn_comando1.grid(row=0, column=0, pady=5, padx=5, sticky="ew")
+btn_comando1 = ctk.CTkButton(root, text="Detección de tornillos", command=ejecutar_comando1,
+                             fg_color="green", width=300, height=50, font=("Arial", 20))
+btn_comando1.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando1d = ctk.CTkButton(root, text="Detener", command=detener_comando1, state="disabled", fg_color="gray")
-btn_comando1d.grid(row=0, column=1, pady=5, padx=5, sticky="ew")
+btn_comando1d = ctk.CTkButton(root, text="Detener", command=detener_comando1,
+                              state="disabled", fg_color="gray", width=300, height=50, font=("Arial", 20))
+btn_comando1d.grid(row=0, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando2 = ctk.CTkButton(root, text="Puente websocket", command=ejecutar_comando2, fg_color="green")
-btn_comando2.grid(row=1, column=0, pady=5, padx=5, sticky="ew")
+btn_comando2 = ctk.CTkButton(root, text="Puente websocket", command=ejecutar_comando2, fg_color="green", width=300, height=50, font=("Arial", 20))
+btn_comando2.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando2d = ctk.CTkButton(root, text="Detener", command=detener_comando2, state="disabled", fg_color="gray")
-btn_comando2d.grid(row=1, column=1, pady=5, padx=5, sticky="ew")
+btn_comando2d = ctk.CTkButton(root, text="Detener", command=detener_comando2, state="disabled", fg_color="gray", width=300, height=50, font=("Arial", 20))
+btn_comando2d.grid(row=1, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando3 = ctk.CTkButton(root, text="Mensajes de audio", command=ejecutar_comando3, fg_color="green")
-btn_comando3.grid(row=2, column=0, pady=5, padx=5, sticky="ew")
+btn_comando3 = ctk.CTkButton(root, text="Mensajes de audio", command=ejecutar_comando3, fg_color="green",  width=300, height=50, font=("Arial", 20))
+btn_comando3.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando3d = ctk.CTkButton(root, text="Detener", command=detener_comando3, state="disabled", fg_color="gray")
-btn_comando3d.grid(row=2, column=1, pady=5, padx=5, sticky="ew")
+btn_comando3d = ctk.CTkButton(root, text="Detener", command=detener_comando3, state="disabled", fg_color="gray",  width=300, height=50, font=("Arial", 20))
+btn_comando3d.grid(row=2, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando4 = ctk.CTkButton(root, text="Cámara Luxonis", command=ejecutar_comando4, fg_color="green")
-btn_comando4.grid(row=3, column=0, pady=5, padx=5, sticky="ew")
+btn_comando4 = ctk.CTkButton(root, text="Cámara Luxonis", command=ejecutar_comando4, fg_color="green",  width=300, height=50, font=("Arial", 20))
+btn_comando4.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando4d = ctk.CTkButton(root, text="Detener", command=detener_comando4, state="disabled", fg_color="gray")
-btn_comando4d.grid(row=3, column=1, pady=5, padx=5, sticky="ew")
+btn_comando4d = ctk.CTkButton(root, text="Detener", command=detener_comando4, state="disabled", fg_color="gray",  width=300, height=50, font=("Arial", 20))
+btn_comando4d.grid(row=3, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando5 = ctk.CTkButton(root, text="Nodo central", command=ejecutar_comando5, fg_color="green")
-btn_comando5.grid(row=4, column=0, pady=5, padx=5, sticky="ew")
+btn_comando5 = ctk.CTkButton(root, text="Nodo central", command=ejecutar_comando5, fg_color="green",  width=300, height=50, font=("Arial", 20))
+btn_comando5.grid(row=4, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando5d = ctk.CTkButton(root, text="Detener", command=detener_comando5, state="disabled", fg_color="gray")
-btn_comando5d.grid(row=4, column=1, pady=5, padx=5, sticky="ew")
+btn_comando5d = ctk.CTkButton(root, text="Detener", command=detener_comando5, state="disabled", fg_color="gray",  width=300, height=50, font=("Arial", 20))
+btn_comando5d.grid(row=4, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando6 = ctk.CTkButton(root, text="Seguimiento de Hololens", command=ejecutar_comando6, fg_color="green")
-btn_comando6.grid(row=5, column=0, pady=5, padx=5, sticky="ew")
+btn_comando6 = ctk.CTkButton(root, text="Seguimiento de Hololens", command=ejecutar_comando6, fg_color="green",  width=300, height=50, font=("Arial", 20))
+btn_comando6.grid(row=5, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando6d = ctk.CTkButton(root, text="Detener", command=detener_comando6, state="disabled", fg_color="gray")
-btn_comando6d.grid(row=5, column=1, pady=5, padx=5, sticky="ew")
+btn_comando6d = ctk.CTkButton(root, text="Detener", command=detener_comando6, state="disabled", fg_color="gray",  width=300, height=50, font=("Arial", 20))
+btn_comando6d.grid(row=5, column=1, pady=10, padx=10, sticky="ew")
 
-btn_comando7 = ctk.CTkButton(root, text="Imagen Hololens", command=ejecutar_comando7, fg_color="green")
-btn_comando7.grid(row=6, column=0, pady=5, padx=5, sticky="ew")
+btn_comando7 = ctk.CTkButton(root, text="Imagen Hololens", command=ejecutar_comando7, fg_color="green",  width=300, height=50, font=("Arial", 20))
+btn_comando7.grid(row=6, column=0, pady=10, padx=10, sticky="ew")
 
-btn_comando7d = ctk.CTkButton(root, text="Detener", command=detener_comando7, state="disabled", fg_color="gray")
-btn_comando7d.grid(row=6, column=1, pady=5, padx=5, sticky="ew")
+btn_comando7d = ctk.CTkButton(root, text="Detener", command=detener_comando7, state="disabled", fg_color="gray",  width=300, height=50, font=("Arial", 20))
+btn_comando7d.grid(row=6, column=1, pady=10, padx=10, sticky="ew")
 
 # Botón para ejecutar todos los comandos
-btn_ejecutar_todos = ctk.CTkButton(root, text="Ejecutar todos los comandos", command=ejecutar_todos_los_comandos)
-btn_ejecutar_todos.grid(row=7, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+btn_ejecutar_todos = ctk.CTkButton(root, text="Ejecutar todos los comandos", command=ejecutar_todos_los_comandos, width=300, height=50, font=("Arial", 20))
+btn_ejecutar_todos.grid(row=7, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
 # Botón rojo para matar todos los procesos y cerrar la interfaz
-btn_matar_todos = ctk.CTkButton(root, text="Matar todos los procesos y salir", command=matar_todos_los_procesos, fg_color="red")
-btn_matar_todos.grid(row=8, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+btn_matar_todos = ctk.CTkButton(root, text="Matar todos los procesos y salir", command=matar_todos_los_procesos, fg_color="red", width=300, height=50, font=("Arial", 20))
+btn_matar_todos.grid(row=8, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
-# Botón para abrir el enlace en Google Chrome
-btn_abrir_enlace = ctk.CTkButton(root, text="Abrir Apps en Firefox", command=abrir_enlace)
-btn_abrir_enlace.grid(row=9, column=0, columnspan=2, pady=10, padx=5, sticky="ew")
+# Botón para lanzar app realidad mixta
+btn_lanzar_app= ctk.CTkButton(root, text="Arrancar aplicación", command=lanzar_app, width=300, height=50, font=("Arial", 20))
+btn_lanzar_app.grid(row=9, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+
+btn_detener_app= ctk.CTkButton(root, text="Detener aplicación", command=detener_app, fg_color="red", width=300, height=50, font=("Arial", 20))
+btn_detener_app.grid(row=10, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
 
 # Ejecutar el bucle principal de la interfaz
 root.mainloop()
